@@ -18,7 +18,7 @@ app.get('/new/*', function(req, res){
     //validate url status
     var url = req.params[0];
     if(!validateUrl(url)){
-        res.send({'short-url':'Invalid URL format - please format similar to "http://www.google.com"'});
+        res.send({'short-url':'Invalid URL format - please format similar to "http://www.example.com"'});
         return;
     }
     //generate Guid
