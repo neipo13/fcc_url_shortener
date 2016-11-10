@@ -3,14 +3,24 @@ const mongo = require('mongodb').MongoClient;
 const mongoLocation = 'mongodb://fccShorurl:Freecodecamp98@ds147797.mlab.com:47797/urls';
 const app = express(); 
 
+//from stack overflow user ChristianD
+//http://stackoverflow.com/a/15855457/2616265
+function validateUrl(value){
+  return /^(https?|ftp):\/\/(((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:)*@)?(((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5]))|((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?)(:\d*)?)(\/((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)+(\/(([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)*)*)?)?(\?((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|[\uE000-\uF8FF]|\/|\?)*)?(\#((([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(%[\da-f]{2})|[!\$&'\(\)\*\+,;=]|:|@)|\/|\?)*)?$/i.test(value);
+}
+
 app.get('/', function(req, res){
     //render html of directions
     res.send('home');
 });
 
-app.get('/new/:url*', function(req, res){
+app.get('/new/*', function(req, res){
     //validate url status
-    console.log('in new');
+    var url = req.params[0];
+    if(!validateUrl(url)){
+        res.send({'short-url':'Invalid URL format - please format similar to "http://www.google.com"'});
+        return;
+    }
     //generate Guid
     var d = new Date().getTime();
     var id = 'xxxxxx'.replace(/[xy]/g, function(c) {
@@ -21,7 +31,7 @@ app.get('/new/:url*', function(req, res){
     //create object to store in mongo
     var obj = {
         'id':id,
-        'url':req.params.url
+        'url':req.params[0]
     };
     //store it in mongo
     mongo.connect(mongoLocation, function(err, db){
@@ -51,7 +61,7 @@ app.get('/new/:url*', function(req, res){
 });
 
 app.get('/:id', function(req, res){
-    console.log('in redirect');
+    //console.log('in redirect');
     //check if the id exists in mongo
     var id = req.params.id;
     mongo.connect(mongoLocation, function(err, db){
@@ -69,7 +79,7 @@ app.get('/:id', function(req, res){
             }
             if(typeof(docs) !== 'undefined' && docs !== null && docs.length > 0){
                 //redirect to the page in question
-                res.redirect('https://' + docs[0].url)
+                res.redirect(docs[0].url)
             }
             else{
                 console.log('err in find',docs);
