@@ -8,19 +8,24 @@ app.get('/', function(req, res){
     res.send('home');
 });
 
-app.get('/new/:url/', function(req, res){
+app.get('/new/:url', function(req, res){
+    //validate url status
     console.log('in new');
+    //generate Guid
     var d = new Date().getTime();
     var id = 'xxxxxx'.replace(/[xy]/g, function(c) {
         var r = (d + Math.random()*16)%16 | 0;
         d = Math.floor(d/16);
         return (c=='x' ? r : (r&0x3|0x8)).toString(16);
     });
+    //create object to store in mongo
     var obj = {
         'id':id,
         'url':req.params.url
     };
+    //store it in mongo
     mongo.connect(mongoLocation, function(err, db){
+        //handle mongo errors
         if(err){
             console.log(err);
             res.send({ 'error':'Server Error'});
@@ -29,15 +34,16 @@ app.get('/new/:url/', function(req, res){
         db
         .collection('urls')
         .insert(obj, function(err, data){
+            //handle insert errors
             if(err){
                 console.log('err in insert', err);
                 res.send({ 'error':'Server Error'});
             }
             
+            //return the url with the new Guid as id
             var url = {
                 'short-url':'https://shorurl.herokuapp.com/' + id
             };
-            //return the url with the new Guid as id
             res.send(url);
             db.close();
         });
