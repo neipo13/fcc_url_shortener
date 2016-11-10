@@ -1,4 +1,5 @@
 const express = require('express');
+var path = require("path");
 const mongo = require('mongodb').MongoClient;
 const mongoLocation = 'mongodb://fccShorurl:Freecodecamp98@ds147797.mlab.com:47797/urls';
 const app = express(); 
@@ -11,7 +12,7 @@ function validateUrl(value){
 
 app.get('/', function(req, res){
     //render html of directions
-    res.send('home');
+    res.sendFile(path.join(__dirname+'/index.html'));
 });
 
 app.get('/new/*', function(req, res){

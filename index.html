@@ -1,0 +1,15 @@
+<h1>Shorurl - URL shortening service</h1>
+
+<p>Enter a URL to shorten below or go to 'https://shorurl.herokuapp.com/new/' then your URL.</p>
+
+<input type="text" id="urlInput"/>
+<button id="urlButton">Shorten!</button>
+
+<script>
+    document.getElementById("urlButton").onclick = redirect;
+    var inputElem = document.getElementById("urlInput");
+
+    function redirect() {
+        window.location = 'https://shorurl.herokuapp.com/new/' + inputElem.value;
+    }
+</script>
