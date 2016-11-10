@@ -8,7 +8,7 @@ app.get('/', function(req, res){
     res.send('home');
 });
 
-app.get('/new/:url', function(req, res){
+app.get('/new/:url*', function(req, res){
     //validate url status
     console.log('in new');
     //generate Guid
